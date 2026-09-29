@@ -90,12 +90,12 @@ var S=[
  qa('"No budget / bad timing"','"Understood. That\'s why the Test Drive exists: low cost, no long-term commitment. Can I check back in a few weeks?"')
 ]},
 {id:'vm',tab:'7 Voicemail',title:'Voicemail (under 20 seconds)',note:'Speak clearly with energy. Rotate; never the same one twice in a row.',items:[
- say('First touch','"Hi [Name], Michael Tettey from Spero. We provide trained remote sales reps who book meetings for sales teams, and we just launched a Test Drive at $4 an hour for the first two months. If outbound is on your radar, call me at 385-402-7875. Thanks."'),
+ say('First touch','"Hi [Name], Michael Tettey from Spero. We provide trained remote sales reps who book meetings for sales teams, and we just launched a Test Drive at $4 an hour. If outbound is on your radar, call me at 385-402-7875. Thanks."'),
  say('Follow-up','"Hey [Name], Michael from Spero again. Following up on my last message about filling your pipeline with qualified meetings. I\'m at 385-402-7875."'),
  say('Later touch','"Hey [Name], this is Michael Tettey with Spero. I understand you\'ve been busy, but I want to see if we could have a quick call this week regarding your outbound sales process and how we could help you fill your pipeline with quality appointments with our cost-effective SDR program. My number is 385-402-7875."')
 ]}
 ];
-var PITCH={a:['Pitch A · has a team','"We just launched a Talent Test Drive Program: trained remote SDRs from Latin America for as little as $4 an hour for the first two months, so you can see the fit before any long-term commitment. We handle recruiting and training, and you manage them like any remote team member. Does that sound relevant?"'],
+var PITCH={a:['Pitch A · has a team','"We just launched a Talent Test Drive Program: trained remote SDRs from Latin America for as little as $4 an hour, so you can see the fit before any long-term commitment. We handle recruiting and training, and you manage them like any remote team member. Does that sound relevant?"'],
 b:['Pitch B · no team','"We help companies fill their pipeline with qualified, pre-scheduled appointments that match their ideal client profile, at a fraction of the cost of hiring an SDR in the U.S. Our reps prospect, qualify, and book the meetings; your AEs just show up and sell."']};
 var cur=0,pit='a';
 try{var sv=parseInt(localStorage.getItem('spero_tab'),10);if(sv>=0&&sv<S.length)cur=sv;}catch(e){}
