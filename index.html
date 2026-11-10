@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Spero Call Flow</title>
+<title>2027 Coverage Call Flow</title>
 <style>
 :root{--ink:#211d17;--paper:#faf8f2;--line:#ddd5c2;--accent:#c9622c;--muted:#7a7060;--panel:#f1ece0;--good:#2f7d4f;--onacc:#fff;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
@@ -53,121 +53,125 @@ details .a{padding:4px 14px 12px}
 #bar button.next,#bar button.ret{background:var(--accent);color:var(--onacc);border-color:var(--accent)}
 #bar button:disabled{opacity:.3}
 #bar .cnt{font-size:.75rem;color:var(--muted);font-weight:600;white-space:nowrap}
+
+
+/* Layout adaptations only; color, typography and cards retained from the supplied Spero template. */
+.row.flow{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.row.any{grid-template-columns:auto 1fr 1fr;gap:5px}
+#nav button{min-height:42px}
+#nav button b{font-size:.88rem}
+#nav .row.any button{min-height:32px}
+.step p{white-space:pre-line}
+.step .tag{margin-bottom:5px}
+.branch .bad-choice{border-color:#b94b39!important}
+.branch button.selected,.branch button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--panel))}
+.branch button:focus-visible,#nav button:focus-visible,#bar button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.branch button.bad-choice.selected{border-color:#b94b39}
+.result{border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-top:10px;padding:9px 12px;font-size:.82rem;font-weight:650}
+.result.dnq{border-left:4px solid #b94b39}
+.result.okay{border-left:4px solid var(--good)}
+.inline-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.inline-fields label,.crm-grid label{display:grid;gap:3px;font-size:.76rem;color:var(--muted);font-weight:650}
+.inline-fields input,.crm-grid input{min-width:0;width:100%;border:1px solid var(--line);border-radius:7px;background:var(--paper);padding:9px 10px;color:var(--ink);font:inherit;font-size:.87rem}
+.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:6px}
+.copytip{font-size:.77rem;color:var(--muted);margin-top:5px}
+.tip strong{color:var(--accent)}
+#answer-area{scroll-margin-top:150px}
+#view{padding-bottom:8px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}
+.toolbar button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:5px 9px;border-radius:8px;cursor:pointer;font-size:.77rem;font-weight:650}
+.toolbar .mini{font-size:.75rem;color:var(--muted)}
+.groupsep{font-size:.7rem;letter-spacing:.08em;color:var(--muted);margin:13px 0 5px;text-transform:uppercase;font-weight:750}
+#bar .in{grid-template-columns:1fr auto 1.5fr}
+@media(max-width:400px){.wrap{padding:0 10px 120px}#nav button{font-size:.7rem}.row.flow{grid-template-columns:repeat(4,1fr)}.inline-fields{grid-template-columns:1fr}.crm-grid{grid-template-columns:1fr}.step p{font-size:.99rem}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><h1>Spero Call Flow</h1><p class="sub">Michael Tettey · tap a step, tap a line, keep talking</p></header>
+<header><h1>2027 Coverage Call Flow</h1><p class="sub">ConvoSo script · same Spero template design · tap a step and keep talking</p></header>
 <div id="nav"></div>
+<div class="toolbar"><span class="mini" id="state-line">Call flow</span><button id="reset" type="button">Reset answers</button></div>
 <main id="view"></main>
 </div>
 <div id="bar"></div>
 <script>
-var say=function(tag,text,ok){return {k:'s',tag:tag,text:text,ok:ok}};
-var qa=function(q,a,tag){return {k:'q',q:q,a:a,tag:tag||'You say'}};
-var tip=function(t){return {k:'t',text:t}};
-var S=[
-{id:'gk',short:'Gatekeeper',title:'Gatekeeper',note:'When they ask what you do, answer in ONE plain sentence, then hand the question back. Tap what they say.',items:[
- say('First ask','"Hi, this is Michael Tettey with Spero. Is [Name] available?"'),
- qa('"What is this regarding?" / "What do you do?" / "What is Spero?"','"Spero is a staffing company. We provide trained remote sales reps who book meetings for sales teams. I just have a quick question for [Name] about their outbound. Is he/she the right person for that?"'),
- qa('"Is [Name] expecting your call?"','"No, this is a cold call and I\'ll be brief. Is [Name] around, or is there a better time to catch them?"'),
- qa('"Send an email" / "We don\'t take sales calls"','"Happy to. So it lands with the right person, who handles sales development or outbound? ... And the best email for them? ... When are they usually free for a short call, mornings or afternoons?"'),
- qa('"They\'re not available" / "In a meeting"','"No problem. When\'s the best time to reach them? I\'ll leave my direct line, 385-402-7875. Who am I speaking with, so I can mention you?"'),
- qa('"Wrong person" / "That\'s not our department"','"Thanks for telling me. Who handles sales development or outbound prospecting there? ... Can I get their name and email?"'),
- tip('Always get: the gatekeeper\'s name, the right person\'s name and title, a best time, and a direct email or line.')
-]},
-{id:'op',short:'Opener',title:'Opener (prospect picks up)',note:'Confirm, introduce, give the reason in one line, ask permission. Only then go to discovery.',items:[
- say('A · Confirm','"Hi, is this [Name]?"'),
- say('B · Intro + cold-call frame','"Hi [Name], this is Michael Tettey from Spero. I know I\'m calling out of the blue, so I\'ll be quick."'),
- say('C · Reason for the call','"We provide trained remote sales reps who book qualified meetings for sales teams, and I\'m calling to see if outbound is something you\'re working on right now."',true),
- say('D · Permission','"Can I ask you two quick questions to see if this is even relevant?"'),
- tip('If they ask "what\'s this about?" at any point, jump straight to step C. If they say go ahead, go to Discovery.')
-]},
-{id:'di',short:'Discovery',title:'Discovery',note:'Bridge first so the question feels natural. One question at a time, then listen.',items:[
- say('Bridge','"Great. The reason I ask is that most sales leaders I speak with are stretched on pipeline."'),
- say('Q1','"How are you currently generating most of your leads: inbound, outbound, referrals, or a mix?"'),
- say('Q2 · decides your pitch','"Do you have an internal team booking meetings for you, or reps making outbound calls?"',true),
- say('Q3','"Is filling your AEs\' pipelines with qualified meetings a priority right now?"'),
- tip('Has a team, go to Pitch A. No team, go to Pitch B. Not sure? Ask "who handles outbound today?"')
-]},
-{id:'pi',short:'Pitch',title:'Pitch',note:'Pick the one that matches their Q2 answer.',branch:true,items:[]},
-{id:'cl',short:'Close',title:'Close',note:'Micro-commitment: 15 minutes with your AE.',items:[
- say('Ask','"I\'m not trying to sell you anything on this call. I\'d like to set up a quick 15-minute conversation with my Account Executive, who\'ll learn your process and show you how it works. Tomorrow, or would Thursday work better?"'),
- say('Lock it in','"I\'ll send an invite for [Day] at [Time]. You can reschedule if anything comes up. What\'s the best email for it?"',true)
-]},
-{id:'ob',short:'Objections',title:'Objections',note:'Tap what they said.',any:true,items:[
- qa('"Send me an email"','"Sure. So it\'s useful and not noise, what would you want to see? Also, a 15-minute call with our AE shows exactly how it runs. Would [Day] at [Time] work?"'),
- qa('"Not interested"','"Totally fair. Is that timing, or is adding outbound support just not a priority? I\'ll send a short email and follow up next week to see if it made sense."'),
- qa('"We already have SDRs / we outsource"','"That\'s great. Are they keeping your reps\' calendars full? Some teams use us for overflow at a fraction of the cost. Worth 15 minutes to compare?"'),
- qa('"What does it cost?"','"The Test Drive starts at $4 an hour for the first two months. The AE goes through full pricing based on how many reps you\'d need. Can we get 15 minutes on [Day]?"'),
- qa('"No budget / bad timing"','"Understood. That\'s why the Test Drive exists: low cost, no long-term commitment. Can I check back in a few weeks?"')
-]},
-{id:'vm',short:'Voicemail',title:'Voicemail (under 20 seconds)',note:'Speak clearly with energy. Rotate; never the same one twice in a row.',any:true,items:[
- say('First touch','"Hi [Name], Michael Tettey from Spero. We provide trained remote sales reps who book meetings for sales teams, and we just launched a Test Drive at $4 an hour. If outbound is on your radar, call me at 385-402-7875. Thanks."'),
- say('Follow-up','"Hey [Name], Michael from Spero again. Following up on my last message about filling your pipeline with qualified meetings. I\'m at 385-402-7875."'),
- say('Later touch','"Hey [Name], this is Michael Tettey with Spero. I understand you\'ve been busy, but I want to see if we could have a quick call this week regarding your outbound sales process and how we could help you fill your pipeline with quality appointments with our cost-effective SDR program. My number is 385-402-7875."')
-]}
-];
-var F=5; /* first "anytime" index */
-var PITCH={a:['Pitch A · has a team','"We just launched a Talent Test Drive Program: trained remote SDRs from Latin America for as little as $4 an hour, so you can see the fit before any long-term commitment. We handle recruiting and training, and you manage them like any remote team member. Does that sound relevant?"'],
-b:['Pitch B · no team','"We help companies fill their pipeline with qualified, pre-scheduled appointments that match their ideal client profile, at a fraction of the cost of hiring an SDR in the U.S. Our reps prospect, qualify, and book the meetings; your AEs just show up and sell."']};
-var cur=0,pit='a',last=0,seen={};
-try{var sv=parseInt(localStorage.getItem('spero_tab'),10);if(sv>=0&&sv<S.length)cur=sv;}catch(e){}
-if(cur<F)last=cur;
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+const S=[{"id": "op", "short": "Opening", "title": "Opening & Name", "note": "Original ConvoSo opening and name confirmation.", "kind": "opening", "items": [["AGENT", "Hi, Patti  (MAKE SURE YOU SPEAK WITH ENTHUSIASM AND CONFIDENCE)."], ["AGENT", "Glad I got you today! It’s MSB Raven Card RACA2 with Health Advisors on a recorded line. Its now the 2027 open enrolment period and we need to make sure your coverage and benefits are taken care of."], ["AGENT", "I just have a few quick questions to make sure you get access to the 2027 NEW BENEFITS with a FREE review with a licensed health insurance agent."], ["AGENT", "First off, please confirm your first and last name?  FIRST AND LAST NAME REQUIRED"]]}, {"id": "age", "short": "Age", "title": "Age", "note": "Choose the customer’s answer to this question.", "kind": "choice", "question": "And are you over or under 65 years of age?", "options": ["Over 65", "Under 65"]}, {"id": "med", "short": "Medicare", "title": "Medicare Parts A&B", "note": "Original question and qualifying instruction.", "kind": "choice", "question": "Do you have Medicare Parts A&B? MUST BE A YES, IF NO DNQ", "options": ["No Medicare", "Yes"], "dnq": "No Medicare"}, {"id": "loc", "short": "Location", "title": "Location & ZIP Code", "note": "Original address confirmation prompts.", "kind": "location", "lines": ["You're still living in NC correct? (Ask about the weather and build rapport)", "Ok great and is your zipcode still 28304 ? (Update Convoso if its incorrect)"]}, {"id": "emp", "short": "Employer", "title": "Employer / Union", "note": "Original question and qualifying instruction.", "kind": "choice", "question": "Do you have insurance coverage through an Employer or Union? (MUST BE A NO, IF YES DNQ)", "options": ["NO", "Yes"], "dnq": "Yes"}, {"id": "va", "short": "VA / TriCare", "title": "VA / TriCare", "note": "Original ConvoSo question.", "kind": "choice", "question": "Ok, and how about coverage through the VA or TriCare Program?", "options": ["No", "Yes"]}, {"id": "rx", "short": "Medications", "title": "Medication Question", "note": "Original ConvoSo question.", "kind": "choice", "question": "\"Yes or no is fine for this question....Do you currently take 6 or more medications?\" (You must enter YES or NO)", "options": ["No", "Yes"]}];
+const O=[["Not interested", "“I understand, [[First Name]]. Before you decide, let’s just make sure you’re not overlooking an option available to you. This is VERY helpful and wont take long"], ["I already have insurance", "“Perfect — most people we speak with do. We’re simply checking whether there areother options or benefits you may qualify for.”"], ["I’m happy with my insurance", "“That’s great! There’s no need to change something that works. Let’s simply check whether anything else may be available.”"], ["I’m busy", "“Absolutely — I’ll keep it quick. Let’s just check the basics and see whether it’s worth continuing.”"], ["I get too many calls", "“I understand — I get them too. Give me a moment to explain why I called, and you can decide whether it’s relevant.”"], ["Is this a scam?", "“Fair question. Don’t provide anything you’re uncomfortable sharing. I’m calling to help review health coverage options you may qualify for.”"], ["How did you get my number?", "“Absolutely. I can explain the approved source of your information. First, let me make sure I’m speaking with[[First Name]].” You would have filled a form out online and we must have spoken with you in the passed."], ["Who are you?", "“I’m [[Agent Name]] with [[Approved Company Name]]. I’m calling to help review health coverage options you may qualify for.”"], ["Where are you calling from?", "“I’m calling from Las Vegas with Health Advisors. I’m reaching out regarding health coverage options.”"], ["Take me off your list", "“Absolutely. I’ll follow the required do"], ["“I already did this last week / yesterday.”", "Image “Perfect, [[First Name]] — then you already know how quick this is. I just want to make sure nothing available to you was missed. Let’s verify a couple things.”"], ["“I don’t want to change my plan.”", "Image “And you don’t have to change anything, [[First Name]]. We’re simply reviewing what options may be available. You decide what makes sense for you. Let’s take a quick look.”"], ["“Where do the benefits come from?”", "Image “Great question. The benefits depend on the specific plan and programs you qualify for. My job is to help determine what options may be available to you, and then the licensed agent can explain the exact benefits and provider.”"]];
+const E=[["BE READY TO USE THIS REBUTTALWRONG NUMBER-", "If Consumer says they called the wrong number- “that happens all the time to me as well(laugh a little) but since I have you on the line, let me see what health insurance subsidy I can get you qualified for free."], ["REBUTTAL Lead does not want the review/ don’t want review:", "Follow up to the rebuttal: This does not take long and we NEED to make sure you are current and GET ALL THE 2027 BENEFITS you may be entitled to. Can you do me a favour and let us run the check quickly to make sure you get everything you are entitled to?"]];
+const CRM=[["First Name", "Patti"], ["Last Name", "Campochiaro"], ["City", "Fayetteville"], ["State", "NC"], ["Postal Code", "28304"], ["Primary Phone", ""], ["Cell Phone", ""], ["Work Phone", ""], ["Email", ""], ["Country Code", "+1 United States"], ["Country", "United States"], ["Gender", "Female"], ["Date Of Birth", ""], ["Address 1", ""], ["Address 2", ""], ["Province", ""], ["Dealer", ""], ["Lead Owner", ""], ["sub_id", "269"], ["Appointment Date", ""], ["comments", ""], ["Created By", "System API User"], ["Last Modified By", "MSB Raven Card RACA2"], ["aa_lookup", ""], ["ziplookup", ""], ["ziplookup2", ""]];
+const F=S.length;
+let cur=0,last=0;
+const answers=Object.create(null), seen=Object.create(null);
+let lead={};
+for(const [name,val] of CRM)lead[name]=val;
+const byId=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function stepCard(tag,text,positive=false){return '<div class="step'+(positive?' ok':'')+'"><div class="tag">'+esc(tag)+'</div><p>'+esc(text)+'</p></div>'}
+function details(title,body){return '<details><summary>'+esc(title)+'</summary><div class="a">'+body+'</div></details>'}
+function field(name,val){return '<label>'+esc(name)+'<input data-field="'+esc(name)+'" value="'+esc(val)+'" autocomplete="off" /></label>'}
 function render(){
  if(cur<F){last=cur;seen[cur]=1}
- var n='<div class="row flow">';
- for(var i=0;i<F;i++)n+='<button data-i="'+i+'" class="'+(i===cur?'on':(seen[i]?'seen':''))+'"><b>'+(i+1)+'</b>'+S[i].short+'</button>';
- n+='</div><div class="row any"><span>Anytime</span>';
- for(i=F;i<S.length;i++)n+='<button data-i="'+i+'" class="'+(i===cur?'on':'')+'">'+S[i].short+'</button>';
- document.getElementById('nav').innerHTML=n+'</div>';
- var s=S[cur],h='<h2>'+s.title+'</h2><p class="note">'+s.note+'</p>';
- if(s.branch){
-  h+='<div class="branch"><button data-p="a" class="'+(pit==='a'?'on':'')+'">Has a team<br>Pitch A</button><button data-p="b" class="'+(pit==='b'?'on':'')+'">No team<br>Pitch B</button></div>';
-  h+='<div class="step ok"><div class="tag">'+PITCH[pit][0]+'</div><p>'+esc(PITCH[pit][1])+'</p></div>';
- }
- s.items.forEach(function(it){
-  if(it.k==='s')h+='<div class="step'+(it.ok?' ok':'')+'"><div class="tag">'+it.tag+'</div><p>'+esc(it.text)+'</p></div>';
-  else if(it.k==='q')h+='<details><summary>'+esc(it.q)+'</summary><div class="a"><div class="step ok" style="margin:6px 0"><div class="tag">'+it.tag+'</div><p>'+esc(it.a)+'</p></div></div></details>';
-  else h+='<div class="tip">'+esc(it.text)+'</div>';
- });
- document.getElementById('view').innerHTML=h;
- var b;
+ let n='<div class="row flow">';
+ S.forEach((s,i)=>{n+='<button type="button" data-i="'+i+'" class="'+(cur===i?'on':seen[i]?'seen':'')+'" aria-label="Step '+(i+1)+': '+esc(s.title)+'"><b>'+(i+1)+'</b>'+esc(s.short)+'</button>'});
+ n+='</div><div class="row any"><span>Anytime</span><button type="button" data-i="'+F+'" class="'+(cur===F?'on':'')+'">Rebuttals</button><button type="button" data-i="'+(F+1)+'" class="'+(cur===F+1?'on':'')+'">Lead details</button></div>';
+ byId('nav').innerHTML=n;
+ let h='';
  if(cur<F){
-  b='<div class="in"><button data-n="-1" '+(cur===0?'disabled':'')+'>Back</button><span class="cnt">'+(cur+1)+' / '+F+'</span><button class="next" data-n="1" '+(cur===F-1?'disabled':'')+'>'+(cur===F-1?'End of call flow':'Next: '+S[cur+1].short)+'</button></div>';
+  const s=S[cur];h='<h2>'+esc(s.title)+'</h2><p class="note">'+esc(s.note)+'</p>';
+  if(s.kind==='opening'){
+   for(const [tag,line] of s.items)h+=stepCard(tag,line);
+   h+='<div class="inline-fields">'+field('First Name',lead['First Name'])+field('Last Name',lead['Last Name'])+'</div>';
+   h+='<div class="groupsep">Rebuttals shown on the opening screen</div>';
+   for(const [q,a] of E)h+=details(q,stepCard('Original rebuttal',a,true));
+  }else if(s.kind==='choice'){
+   h+=stepCard('ConvoSo question',s.question);
+   h+='<div class="branch" id="answer-area">';
+   for(const o of s.options){let sel=answers[s.id]===o;h+='<button type="button" data-choice="'+esc(o)+'" class="'+(sel?'selected':'')+((sel&&o===s.dnq)?' bad-choice':'')+'" aria-pressed="'+sel+'">'+esc(o)+'</button>'}
+   h+='</div>';
+   if(answers[s.id]!==undefined){
+    if(answers[s.id]===s.dnq)h+='<div class="result dnq"><strong>DNQ</strong> — '+esc(s.id==='med'?'IF NO DNQ':'IF YES DNQ')+'</div>';
+    else h+='<div class="result okay">Selected: '+esc(answers[s.id])+'</div>';
+   }
+  }else if(s.kind==='location'){
+    for(const l of s.lines)h+=stepCard('ConvoSo question',l);
+    h+='<div class="inline-fields">'+field('State',lead.State)+field('Postal Code',lead['Postal Code'])+'</div>';
+  }
+ }else if(cur===F){
+  h='<h2>Agent rebuttals</h2><p class="note">Tap what the customer says to reveal the exact response from your original table.</p>';
+  for(const [q,a] of O)h+=details(q,stepCard('Agent rebuttal',a,true));
  }else{
-  b='<div class="in one"><button class="ret" data-i="'+last+'">Back to call: '+(last+1)+' '+S[last].short+'</button></div>';
+  h='<h2>Lead details</h2><p class="note">CRM field layout, based on the ConvoSo screenshot. These entries stay in this page only.</p><div class="crm-grid">';
+  for(const [name] of CRM)h+=field(name,lead[name]||'');
+  h+='</div>';
  }
- document.getElementById('bar').innerHTML=b;
- try{localStorage.setItem('spero_tab',cur)}catch(e){}
+ byId('view').innerHTML=h;
+ let b='';
+ if(cur<F){
+  b='<div class="in"><button type="button" data-n="-1" '+(cur===0?'disabled':'')+'>Back</button><span class="cnt">'+(cur+1)+' / '+F+'</span><button type="button" class="next" data-n="1" '+(cur===F-1?'disabled':'')+'>'+(cur===F-1?'End of captured flow':'Next: '+esc(S[cur+1].short))+'</button></div>';
+ }else b='<div class="in one"><button type="button" class="ret" data-i="'+last+'">Back to call: '+(last+1)+' '+esc(S[last].short)+'</button></div>';
+ byId('bar').innerHTML=b;
+ let track=answers.age?'Age: '+answers.age:'No age selected';
+ if(answers.med==='No Medicare'||answers.emp==='Yes')track+=' · DNQ answer recorded';
+ byId('state-line').textContent=track;
 }
-function go(i){cur=i;render();window.scrollTo(0,0)}
-document.addEventListener('click',function(e){
- var b=e.target.closest('button');if(!b)return;
- if(b.dataset.i!==undefined)go(+b.dataset.i);
- else if(b.dataset.n!==undefined)go(cur+ +b.dataset.n);
- else if(b.dataset.p){pit=b.dataset.p;render()}
+function go(i){if(i<0||i>F+1)return;cur=i;render();window.scrollTo({top:0,behavior:'instant'})}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.id==='reset'){for(const k in answers)delete answers[k];cur=0;seen[0]=1;render();window.scrollTo(0,0);return}
+ if(b.dataset.i!==undefined){go(Number(b.dataset.i));return}
+ if(b.dataset.n!==undefined){go(cur+Number(b.dataset.n));return}
+ if(b.dataset.choice!==undefined){answers[S[cur].id]=b.dataset.choice;render();return}
 });
-/* one answer open at a time */
-document.addEventListener('toggle',function(e){
+document.addEventListener('input',e=>{if(e.target.matches('input[data-field]')){lead[e.target.dataset.field]=e.target.value}});
+document.addEventListener('toggle',e=>{
  if(e.target.tagName!=='DETAILS'||!e.target.open)return;
- document.querySelectorAll('details[open]').forEach(function(d){if(d!==e.target)d.open=false});
+ document.querySelectorAll('details[open]').forEach(d=>{if(d!==e.target)d.open=false});
  e.target.scrollIntoView({block:'nearest',behavior:'smooth'});
 },true);
-/* swipe between call steps */
-var tx=0,ty=0;
-document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
-document.addEventListener('touchend',function(e){
- if(cur>=F)return;
- var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
- if(Math.abs(dx)>70&&Math.abs(dy)<40){var n=cur+(dx<0?1:-1);if(n>=0&&n<F)go(n)}
-},{passive:true});
-document.addEventListener('keydown',function(e){
- if(cur>=F)return;
- if(e.key==='ArrowRight'&&cur<F-1)go(cur+1);
- if(e.key==='ArrowLeft'&&cur>0)go(cur-1);
-});
+let tx=0,ty=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',e=>{if(cur>=F)return;let dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>70&&Math.abs(dy)<40)go(cur+(dx<0?1:-1))},{passive:true});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(cur>=F)return;if(e.key==='ArrowRight')go(Math.min(cur+1,F-1));if(e.key==='ArrowLeft')go(Math.max(0,cur-1))});
 render();
 </script>
 </body>
