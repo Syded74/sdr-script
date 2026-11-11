@@ -1,178 +1,360 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>2027 Coverage Call Flow</title>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rebuttal Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
-:root{--ink:#211d17;--paper:#faf8f2;--line:#ddd5c2;--accent:#c9622c;--muted:#7a7060;--panel:#f1ece0;--good:#2f7d4f;--onacc:#fff;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#ede8dc;--paper:#171512;--line:#3a352c;--accent:#e88a4c;--muted:#a89d88;--panel:#211d17;--good:#6fcf97;--onacc:#171512}}
-:root[data-theme="dark"]{--ink:#ede8dc;--paper:#171512;--line:#3a352c;--accent:#e88a4c;--muted:#a89d88;--panel:#211d17;--good:#6fcf97;--onacc:#171512}
-*{box-sizing:border-box}
-html,body{margin:0}
-html{scroll-padding-top:150px}
-body{background:var(--paper);color:var(--ink);font-family:-apple-system,Helvetica,Arial,sans-serif;line-height:1.5}
-.wrap{max-width:680px;margin:0 auto;padding:0 14px 110px}
-header{padding:12px 0 6px}
-h1{font-size:1.15rem;margin:0}
-.sub{color:var(--muted);font-size:.78rem;margin:2px 0 0}
-#nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:8px 0;border-bottom:1px solid var(--line)}
-.row{display:grid;gap:5px}
-.row.flow{grid-template-columns:repeat(5,1fr)}
-.row.any{grid-template-columns:auto 1fr 1fr;align-items:center;margin-top:6px}
-.row.any span{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding-right:4px}
-#nav button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:6px 2px;font-size:.74rem;font-weight:600;cursor:pointer;line-height:1.2}
-#nav button b{display:block;font-size:.95rem;color:var(--accent)}
-#nav button.seen{border-bottom:3px solid var(--good)}
-#nav button.on{background:var(--accent);color:var(--onacc);border-color:var(--accent)}
-#nav button.on b{color:var(--onacc)}
-.row.any button{padding:8px 4px;font-size:.8rem}
-h2{font-size:1.1rem;margin:16px 0 4px}
-.note{color:var(--muted);font-size:.83rem;margin:0 0 12px}
-.step{background:var(--panel);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;margin:9px 0}
-.step .tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:700;margin-bottom:2px}
-.step p{margin:0;font-family:Georgia,serif;font-size:1.03rem}
-.step.ok{border-left-color:var(--good)}.step.ok .tag{color:var(--good)}
-.tip{font-size:.83rem;border:1px dashed var(--line);border-radius:8px;padding:8px 12px;margin:10px 0;background:var(--panel)}
-details{border:1px solid var(--line);border-radius:10px;margin:8px 0;background:var(--panel);overflow:hidden}
-summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:.93rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";color:var(--accent);font-size:1.2rem;line-height:1}
-details[open] summary::after{content:"\2212"}
-details[open]{border-color:var(--accent)}
-details[open] summary{border-bottom:1px solid var(--line)}
-details .a{padding:4px 14px 12px}
-.branch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.branch button{padding:12px 8px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;font-size:.85rem;cursor:pointer}
-.branch button.on{border-color:var(--accent)}
-#bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--paper);border-top:1px solid var(--line);padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px))}
-#bar .in{max-width:680px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1.4fr;gap:8px;align-items:center}
-#bar .in.one{grid-template-columns:1fr}
-#bar button{padding:13px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:.9rem;font-weight:700;cursor:pointer}
-#bar button.next,#bar button.ret{background:var(--accent);color:var(--onacc);border-color:var(--accent)}
-#bar button:disabled{opacity:.3}
-#bar .cnt{font-size:.75rem;color:var(--muted);font-weight:600;white-space:nowrap}
-
-
-/* Layout adaptations only; color, typography and cards retained from the supplied Spero template. */
-.row.flow{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-.row.any{grid-template-columns:auto 1fr 1fr;gap:5px}
-#nav button{min-height:42px}
-#nav button b{font-size:.88rem}
-#nav .row.any button{min-height:32px}
-.step p{white-space:pre-line}
-.step .tag{margin-bottom:5px}
-.branch .bad-choice{border-color:#b94b39!important}
-.branch button.selected,.branch button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--panel))}
-.branch button:focus-visible,#nav button:focus-visible,#bar button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.branch button.bad-choice.selected{border-color:#b94b39}
-.result{border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-top:10px;padding:9px 12px;font-size:.82rem;font-weight:650}
-.result.dnq{border-left:4px solid #b94b39}
-.result.okay{border-left:4px solid var(--good)}
-.inline-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
-.inline-fields label,.crm-grid label{display:grid;gap:3px;font-size:.76rem;color:var(--muted);font-weight:650}
-.inline-fields input,.crm-grid input{min-width:0;width:100%;border:1px solid var(--line);border-radius:7px;background:var(--paper);padding:9px 10px;color:var(--ink);font:inherit;font-size:.87rem}
-.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:6px}
-.copytip{font-size:.77rem;color:var(--muted);margin-top:5px}
-.tip strong{color:var(--accent)}
-#answer-area{scroll-margin-top:150px}
-#view{padding-bottom:8px}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}
-.toolbar button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:5px 9px;border-radius:8px;cursor:pointer;font-size:.77rem;font-weight:650}
-.toolbar .mini{font-size:.75rem;color:var(--muted)}
-.groupsep{font-size:.7rem;letter-spacing:.08em;color:var(--muted);margin:13px 0 5px;text-transform:uppercase;font-weight:750}
-#bar .in{grid-template-columns:1fr auto 1.5fr}
-@media(max-width:400px){.wrap{padding:0 10px 120px}#nav button{font-size:.7rem}.row.flow{grid-template-columns:repeat(4,1fr)}.inline-fields{grid-template-columns:1fr}.crm-grid{grid-template-columns:1fr}.step p{font-size:.99rem}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<header><h1>2027 Coverage Call Flow</h1><p class="sub">ConvoSo script · same Spero template design · tap a step and keep talking</p></header>
-<div id="nav"></div>
-<div class="toolbar"><span class="mini" id="state-line">Call flow</span><button id="reset" type="button">Reset answers</button></div>
-<main id="view"></main>
-</div>
-<div id="bar"></div>
-<script>
-const S=[{"id": "op", "short": "Opening", "title": "Opening & Name", "note": "Original ConvoSo opening and name confirmation.", "kind": "opening", "items": [["AGENT", "Hi, Patti  (MAKE SURE YOU SPEAK WITH ENTHUSIASM AND CONFIDENCE)."], ["AGENT", "Glad I got you today! It’s Michael with Health Advisors on a recorded line. Its now the 2027 open enrolment period and we need to make sure your coverage and benefits are taken care of."], ["AGENT", "I just have a few quick questions to make sure you get access to the 2027 NEW BENEFITS with a FREE review with a licensed health insurance agent."], ["AGENT", "First off, please confirm your first and last name?  FIRST AND LAST NAME REQUIRED"]]}, {"id": "age", "short": "Age", "title": "Age", "note": "Choose the customer’s answer to this question.", "kind": "choice", "question": "And are you over or under 65 years of age?", "options": ["Over 65", "Under 65"]}, {"id": "med", "short": "Medicare", "title": "Medicare Parts A&B", "note": "Original question and qualifying instruction.", "kind": "choice", "question": "Do you have Medicare Parts A&B? MUST BE A YES, IF NO DNQ", "options": ["No Medicare", "Yes"], "dnq": "No Medicare"}, {"id": "loc", "short": "Location", "title": "Location & ZIP Code", "note": "Original address confirmation prompts.", "kind": "location", "lines": ["You're still living in NC correct? (Ask about the weather and build rapport)", "Ok great and is your zipcode still 28304 ? (Update Convoso if its incorrect)"]}, {"id": "emp", "short": "Employer", "title": "Employer / Union", "note": "Original question and qualifying instruction.", "kind": "choice", "question": "Do you have insurance coverage through an Employer or Union? (MUST BE A NO, IF YES DNQ)", "options": ["NO", "Yes"], "dnq": "Yes"}, {"id": "va", "short": "VA / TriCare", "title": "VA / TriCare", "note": "Original ConvoSo question.", "kind": "choice", "question": "Ok, and how about coverage through the VA or TriCare Program?", "options": ["No", "Yes"]}, {"id": "rx", "short": "Medications", "title": "Medication Question", "note": "Original ConvoSo question.", "kind": "choice", "question": "\"Yes or no is fine for this question....Do you currently take 6 or more medications?\" (You must enter YES or NO)", "options": ["No", "Yes"]}];
-const O=[["Not interested", "“I understand, [[First Name]]. Before you decide, let’s just make sure you’re not overlooking an option available to you. This is VERY helpful and wont take long"], ["I already have insurance", "“Perfect — most people we speak with do. We’re simply checking whether there areother options or benefits you may qualify for.”"], ["I’m happy with my insurance", "“That’s great! There’s no need to change something that works. Let’s simply check whether anything else may be available.”"], ["I’m busy", "“Absolutely — I’ll keep it quick. Let’s just check the basics and see whether it’s worth continuing.”"], ["I get too many calls", "“I understand — I get them too. Give me a moment to explain why I called, and you can decide whether it’s relevant.”"], ["Is this a scam?", "“Fair question. Don’t provide anything you’re uncomfortable sharing. I’m calling to help review health coverage options you may qualify for.”"], ["How did you get my number?", "“Absolutely. I can explain the approved source of your information. First, let me make sure I’m speaking with[[First Name]].” You would have filled a form out online and we must have spoken with you in the passed."], ["Who are you?", "“I’m [[Agent Name]] with [[Approved Company Name]]. I’m calling to help review health coverage options you may qualify for.”"], ["Where are you calling from?", "“I’m calling from Las Vegas with Health Advisors. I’m reaching out regarding health coverage options.”"], ["Take me off your list", "“Absolutely. I’ll follow the required do"], ["“I already did this last week / yesterday.”", "Image “Perfect, [[First Name]] — then you already know how quick this is. I just want to make sure nothing available to you was missed. Let’s verify a couple things.”"], ["“I don’t want to change my plan.”", "Image “And you don’t have to change anything, [[First Name]]. We’re simply reviewing what options may be available. You decide what makes sense for you. Let’s take a quick look.”"], ["“Where do the benefits come from?”", "Image “Great question. The benefits depend on the specific plan and programs you qualify for. My job is to help determine what options may be available to you, and then the licensed agent can explain the exact benefits and provider.”"]];
-const E=[["BE READY TO USE THIS REBUTTALWRONG NUMBER-", "If Consumer says they called the wrong number- “that happens all the time to me as well(laugh a little) but since I have you on the line, let me see what health insurance subsidy I can get you qualified for free."], ["REBUTTAL Lead does not want the review/ don’t want review:", "Follow up to the rebuttal: This does not take long and we NEED to make sure you are current and GET ALL THE 2027 BENEFITS you may be entitled to. Can you do me a favour and let us run the check quickly to make sure you get everything you are entitled to?"]];
-const CRM=[["First Name", "Patti"], ["Last Name", "Campochiaro"], ["City", "Fayetteville"], ["State", "NC"], ["Postal Code", "28304"], ["Primary Phone", ""], ["Cell Phone", ""], ["Work Phone", ""], ["Email", ""], ["Country Code", "+1 United States"], ["Country", "United States"], ["Gender", "Female"], ["Date Of Birth", ""], ["Address 1", ""], ["Address 2", ""], ["Province", ""], ["Dealer", ""], ["Lead Owner", ""], ["sub_id", "269"], ["Appointment Date", ""], ["comments", ""], ["Created By", "System API User"], ["Last Modified By", "MSB Raven Card RACA2"], ["aa_lookup", ""], ["ziplookup", ""], ["ziplookup2", ""]];
-const F=S.length;
-let cur=0,last=0;
-const answers=Object.create(null), seen=Object.create(null);
-let lead={};
-for(const [name,val] of CRM)lead[name]=val;
-const byId=id=>document.getElementById(id);
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-function stepCard(tag,text,positive=false){return '<div class="step'+(positive?' ok':'')+'"><div class="tag">'+esc(tag)+'</div><p>'+esc(text)+'</p></div>'}
-function details(title,body){return '<details><summary>'+esc(title)+'</summary><div class="a">'+body+'</div></details>'}
-function field(name,val){return '<label>'+esc(name)+'<input data-field="'+esc(name)+'" value="'+esc(val)+'" autocomplete="off" /></label>'}
-function render(){
- if(cur<F){last=cur;seen[cur]=1}
- let n='<div class="row flow">';
- S.forEach((s,i)=>{n+='<button type="button" data-i="'+i+'" class="'+(cur===i?'on':seen[i]?'seen':'')+'" aria-label="Step '+(i+1)+': '+esc(s.title)+'"><b>'+(i+1)+'</b>'+esc(s.short)+'</button>'});
- n+='</div><div class="row any"><span>Anytime</span><button type="button" data-i="'+F+'" class="'+(cur===F?'on':'')+'">Rebuttals</button><button type="button" data-i="'+(F+1)+'" class="'+(cur===F+1?'on':'')+'">Lead details</button></div>';
- byId('nav').innerHTML=n;
- let h='';
- if(cur<F){
-  const s=S[cur];h='<h2>'+esc(s.title)+'</h2><p class="note">'+esc(s.note)+'</p>';
-  if(s.kind==='opening'){
-   for(const [tag,line] of s.items)h+=stepCard(tag,line);
-   h+='<div class="inline-fields">'+field('First Name',lead['First Name'])+field('Last Name',lead['Last Name'])+'</div>';
-   h+='<div class="groupsep">Rebuttals shown on the opening screen</div>';
-   for(const [q,a] of E)h+=details(q,stepCard('Original rebuttal',a,true));
-  }else if(s.kind==='choice'){
-   h+=stepCard('ConvoSo question',s.question);
-   h+='<div class="branch" id="answer-area">';
-   for(const o of s.options){let sel=answers[s.id]===o;h+='<button type="button" data-choice="'+esc(o)+'" class="'+(sel?'selected':'')+((sel&&o===s.dnq)?' bad-choice':'')+'" aria-pressed="'+sel+'">'+esc(o)+'</button>'}
-   h+='</div>';
-   if(answers[s.id]!==undefined){
-    if(answers[s.id]===s.dnq)h+='<div class="result dnq"><strong>DNQ</strong> — '+esc(s.id==='med'?'IF NO DNQ':'IF YES DNQ')+'</div>';
-    else h+='<div class="result okay">Selected: '+esc(answers[s.id])+'</div>';
-   }
-  }else if(s.kind==='location'){
-    for(const l of s.lines)h+=stepCard('ConvoSo question',l);
-    h+='<div class="inline-fields">'+field('State',lead.State)+field('Postal Code',lead['Postal Code'])+'</div>';
-  }
- }else if(cur===F){
-  h='<h2>Agent rebuttals</h2><p class="note">Tap what the customer says to reveal the exact response from your original table.</p>';
-  for(const [q,a] of O)h+=details(q,stepCard('Agent rebuttal',a,true));
- }else{
-  h='<h2>Lead details</h2><p class="note">CRM field layout, based on the ConvoSo screenshot. These entries stay in this page only.</p><div class="crm-grid">';
-  for(const [name] of CRM)h+=field(name,lead[name]||'');
-  h+='</div>';
- }
- byId('view').innerHTML=h;
- let b='';
- if(cur<F){
-  b='<div class="in"><button type="button" data-n="-1" '+(cur===0?'disabled':'')+'>Back</button><span class="cnt">'+(cur+1)+' / '+F+'</span><button type="button" class="next" data-n="1" '+(cur===F-1?'disabled':'')+'>'+(cur===F-1?'End of captured flow':'Next: '+esc(S[cur+1].short))+'</button></div>';
- }else b='<div class="in one"><button type="button" class="ret" data-i="'+last+'">Back to call: '+(last+1)+' '+esc(S[last].short)+'</button></div>';
- byId('bar').innerHTML=b;
- let track=answers.age?'Age: '+answers.age:'No age selected';
- if(answers.med==='No Medicare'||answers.emp==='Yes')track+=' · DNQ answer recorded';
- byId('state-line').textContent=track;
+/* Quick-reference objection list and rebuttal panel. */
+:root {
+  --bg: #f1f4f8;
+  --surface: #ffffff;
+  --fg: #0e1a2b;
+  --muted: #475669;
+  --line: #ced6e0;
+  --accent: #0b4f9e;
+  --accent-soft: #dbe7f7;
+  --on-accent: #ffffff;
+  --fill-fg: #7a3f00;
+  --fill-bg: #ffe6b0;
+  --font: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --scale: 1;
 }
-function go(i){if(i<0||i>F+1)return;cur=i;render();window.scrollTo({top:0,behavior:'instant'})}
-document.addEventListener('click',e=>{
- const b=e.target.closest('button');if(!b)return;
- if(b.id==='reset'){for(const k in answers)delete answers[k];cur=0;seen[0]=1;render();window.scrollTo(0,0);return}
- if(b.dataset.i!==undefined){go(Number(b.dataset.i));return}
- if(b.dataset.n!==undefined){go(cur+Number(b.dataset.n));return}
- if(b.dataset.choice!==undefined){answers[S[cur].id]=b.dataset.choice;render();return}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1320;
+    --surface: #131f33;
+    --fg: #f3f7fc;
+    --muted: #a8b6c8;
+    --line: #28384f;
+    --accent: #86b8ff;
+    --accent-soft: #1b3558;
+    --on-accent: #07111f;
+    --fill-fg: #ffd98a;
+    --fill-bg: #4a3a10;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1320;
+  --surface: #131f33;
+  --fg: #f3f7fc;
+  --muted: #a8b6c8;
+  --line: #28384f;
+  --accent: #86b8ff;
+  --accent-soft: #1b3558;
+  --on-accent: #07111f;
+  --fill-fg: #ffd98a;
+  --fill-bg: #4a3a10;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.45;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1500px; margin: 0 auto; display: grid; gap: 20px; }
+
+header { display: grid; gap: 14px; }
+h1 { font-size: 1.5rem; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+.setup { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.field { display: grid; gap: 4px; min-width: 0; flex: 1 1 180px; }
+.field label, .eyebrow {
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+}
+input[type="text"], input[type="search"] {
+  font: inherit; color: var(--fg); background: var(--surface);
+  border: 2px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+input:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.size { display: flex; gap: 8px; }
+button {
+  font: inherit; font-weight: 700; cursor: pointer; color: var(--fg);
+  background: var(--surface); border: 2px solid var(--line); border-radius: 8px; padding: 10px 16px;
+}
+button:hover { border-color: var(--accent); }
+
+main { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.list { display: grid; gap: 8px; min-width: 0; }
+.list .items { display: grid; gap: 8px; }
+.item {
+  text-align: left; font-size: 1.15rem; line-height: 1.3; padding: 14px 16px;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 8px; width: 100%;
+}
+.item[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.empty { color: var(--muted); padding: 12px 4px; }
+
+.panel {
+  background: var(--surface); border: 2px solid var(--line); border-radius: 12px;
+  padding: clamp(18px, 3vw, 40px); display: grid; gap: 22px; min-width: 0;
+}
+.say-label { color: var(--accent); }
+.objection { font-size: calc(1.9rem * var(--scale)); font-weight: 700; line-height: 1.2; margin: 6px 0 0; text-wrap: balance; }
+.rebuttal { font-size: calc(2.4rem * var(--scale)); line-height: 1.35; margin: 6px 0 0; overflow-wrap: anywhere; }
+.fill { color: var(--fill-fg); background: var(--fill-bg); border-radius: 6px; padding: 0 0.2em; font-weight: 700; }
+.note { color: var(--muted); font-size: 1.05rem; border-top: 2px dashed var(--line); padding-top: 14px; }
+.nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.nav button { flex: 1 1 140px; font-size: 1.1rem; }
+.hint { color: var(--muted); font-size: 0.95rem; }
+
+.group-label { margin: 10px 2px 0; }
+.extra { background: var(--accent-soft); border-radius: 10px; padding: 14px 18px; display: grid; gap: 4px; }
+.extra-text { font-size: calc(1.6rem * var(--scale)); line-height: 1.35; margin: 0; overflow-wrap: anywhere; }
+.after { border: 2px solid var(--accent); border-radius: 10px; padding: 14px 18px; display: grid; gap: 4px; }
+.after-text { font-size: calc(1.5rem * var(--scale)); font-weight: 700; margin: 0; overflow-wrap: anywhere; }
+.reminders { background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 18px 22px; }
+.reminders h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 8px; }
+.reminders ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: 1.25rem; }
+
+ .state-lookup { background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 12px 16px; display: grid; gap: 7px; }
+ .state-lookup label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+ .state-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+ #state-code { width: 92px; flex: 0 0 92px; text-transform: uppercase; text-align: center; font-weight: 700; }
+ #state-result { font-size: 1.25rem; font-weight: 700; flex: 1 1 160px; }
+ @media (max-width: 820px) {
+  main { grid-template-columns: minmax(0, 1fr); }
+  .panel { order: -1; }
+  .rebuttal { font-size: calc(1.7rem * var(--scale)); }
+  .objection { font-size: calc(1.4rem * var(--scale)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .item, button { transition: background 0.12s, border-color 0.12s; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Rebuttal Board</h1>
+    <p class="hint" style="margin:0">Select an objection to see the response instantly. No setup required.</p>
+    <div class="setup">
+      <div class="size" role="group" aria-label="Text size">
+        <button id="smaller" type="button" aria-label="Smaller text">A−</button>
+        <button id="bigger" type="button" aria-label="Larger text">A+</button>
+      </div>
+    </div>
+    <section class="state-lookup" aria-label="US state abbreviation lookup">
+      <label for="state-code">US State Lookup</label>
+      <div class="state-row">
+        <input id="state-code" type="text" maxlength="2" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="e.g. TX" aria-describedby="state-result">
+        <output id="state-result" aria-live="polite">Enter a 2-letter abbreviation</output>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="list" aria-label="Customer objections">
+      <input id="search" type="search" placeholder="Search what the customer said" aria-label="Search objections">
+      <div class="items" id="items"></div>
+    </section>
+
+    <section class="panel" aria-live="polite">
+      <div>
+        <div class="eyebrow">Customer says</div>
+        <p class="objection" id="objection"></p>
+      </div>
+      <div>
+        <div class="eyebrow say-label">You say</div>
+        <p class="rebuttal" id="rebuttal"></p>
+      </div>
+      <div class="extra" id="extra" hidden>
+        <div class="eyebrow" id="extra-label"></div>
+        <p class="extra-text" id="extra-text"></p>
+      </div>
+      <div class="after">
+        <div class="eyebrow">After every rebuttal, go back to the script</div>
+        <p class="after-text">“So, could you confirm your first and last name for me?”</p>
+      </div>
+      <div class="note" id="note" hidden></div>
+      <div class="nav">
+        <button id="prev" type="button">← Previous</button>
+        <button id="next" type="button">Next →</button>
+      </div>
+      <div class="hint">Tip: use the up and down arrow keys to switch objections.</div>
+    </section>
+  </main>
+
+  <section class="reminders" aria-label="Quick reminders">
+    <h2>Quick reminders</h2>
+    <ul>
+      <li>Never say you're licensed or from Medicare.</li>
+      <li>If you don't know something, say “Great question, the licensed agent can explain that in detail.”</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+var DATA = [
+  { q: "Not interested",
+    a: "I understand, {first}. Before you decide, let's just make sure you're not overlooking an option available to you. This is VERY helpful and won't take long." },
+  { q: "I already have insurance",
+    a: "Perfect — most people we speak with do. We're simply checking whether there are other options or benefits you may qualify for." },
+  { q: "I'm happy with my insurance",
+    a: "That's great! There's no need to change something that works. Let's simply check whether anything else may be available." },
+  { q: "I'm busy",
+    a: "Absolutely — I'll keep it quick. Let's just check the basics and see whether it's worth continuing." },
+  { q: "I get too many calls",
+    a: "I understand — I get them too. Give me a moment to explain why I called, and you can decide whether it's relevant." },
+  { q: "Is this a scam?",
+    a: "Fair question. Don't provide anything you're uncomfortable sharing. I'm calling to help review health coverage options you may qualify for." },
+  { q: "How did you get my number?",
+    a: "Absolutely. I can explain the approved source of your information. First, let me make sure I'm speaking with {first}. You would have filled out a form online and we must have spoken with you in the past." },
+  { q: "Who are you?",
+    a: "I'm {agent} with {company}. I'm calling to help review health coverage options you may qualify for." },
+  { q: "Where are you calling from?",
+    a: "I'm calling from Las Vegas with Health Advisors. I'm reaching out regarding health coverage options." },
+  { q: "Take me off your list",
+    a: "Absolutely. I'll follow the required do…",
+    note: "This line was cut off in the original screenshot. Add the rest from your script." },
+  { q: "“I already did this last week / yesterday.”",
+    a: "Perfect, {first} — then you already know how quick this is. I just want to make sure nothing available to you was missed. Let's verify a couple of things." },
+  { q: "“I don't want to change my plan.”",
+    a: "And you don't have to change anything, {first}. We're simply reviewing what options may be available. You decide what makes sense for you. Let's take a quick look." },
+  { q: "“Where do the benefits come from?”",
+    a: "Great question. The benefits depend on the specific plan and programs you qualify for. My job is to help determine what options may be available to you, and then the licensed agent can explain the exact benefits and provider." },
+  { q: "Wrong number",
+    a: "That happens all the time to me as well (laugh a little), but since I have you on the line, let me see what health insurance subsidy I can get you qualified for, for free." },
+  { q: "Doesn't want the review",
+    a: "This doesn't take long, and we need to make sure you're current and get all the 2027 benefits you may be entitled to. Can you do me a favour and let us run the check quickly, so you get everything you're entitled to?" },
+  { q: "“Why do you need my age?”",
+    a: "Good question. Medicare benefits mostly start at 65, and the plans and benefits you can qualify for depend on your age. I just need to confirm it so I'm checking the right things for you.",
+    extra: { label: "If they're uncomfortable", text: "No problem, I only use it to check your eligibility. It's your choice what to share." } },
+  { q: "“What is ACA Medicare Parts A & B?”",
+    a: "Parts A and B together are called Original Medicare. Part A helps cover hospital stays. Part B helps cover doctor visits, outpatient care and preventive services. Many people also have extra plans on top that add benefits.",
+    extra: { label: "Only if they mention ACA", text: "ACA is the Affordable Care Act. Those are marketplace plans, mostly for people under 65, and separate from Medicare." } },
+  { q: "“Who is a licensed insurance agent?”",
+    a: "A licensed insurance agent has passed the state exams and is approved by the state to explain and enroll people in insurance plans. I'm here to verify a few details first, and if you qualify, I'll connect you with a licensed agent who can go through your options." }
+];
+DATA.forEach(function (d, i) { d.g = i < 15 ? "Rebuttals" : "Common questions"; });
+
+var DEFAULTS = { first: "[First Name]", agent: "[Agent Name]", company: "[Approved Company Name]" };
+var sel = 0, query = "", scale = 1;
+var $ = function (id) { return document.getElementById(id); };
+
+
+function load() {
+  try {
+    var saved = JSON.parse(localStorage.getItem("rebuttal-board") || "{}");
+    if (typeof saved.scale === "number") scale = Math.max(0.7, Math.min(2, saved.scale));
+  } catch (e) {}
+}
+function save() {
+  try { localStorage.setItem("rebuttal-board", JSON.stringify({ scale: scale })); } catch (e) {}
+}
+
+function visible() {
+  var q = query.trim().toLowerCase();
+  return DATA.map(function (d, i) { return i; }).filter(function (i) {
+    return !q || DATA[i].q.toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function renderList() {
+  var box = $("items");
+  box.textContent = "";
+  var idx = visible();
+  if (!idx.length) {
+    var e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "No objection matches that search.";
+    box.appendChild(e);
+    return;
+  }
+  var lastG = null;
+  idx.forEach(function (i) {
+    if (DATA[i].g !== lastG) {
+      lastG = DATA[i].g;
+      var h = document.createElement("div");
+      h.className = "eyebrow group-label";
+      h.textContent = lastG;
+      box.appendChild(h);
+    }
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "item";
+    b.textContent = DATA[i].q;
+    b.setAttribute("aria-pressed", i === sel ? "true" : "false");
+    b.addEventListener("click", function () { select(i, true); });
+    box.appendChild(b);
+  });
+}
+
+function renderAnswer() {
+  var d = DATA[sel];
+  $("objection").textContent = d.q;
+  var p = $("rebuttal");
+  p.textContent = "";
+  d.a.split(/(\{first\}|\{agent\}|\{company\})/).forEach(function (part) {
+    var m = part.match(/^\{(first|agent|company)\}$/);
+    if (m) {
+      var span = document.createElement("span");
+      span.className = "fill";
+      span.textContent = DEFAULTS[m[1]];
+      p.appendChild(span);
+    } else if (part) {
+      p.appendChild(document.createTextNode(part));
+    }
+  });
+  var ex = $("extra");
+  ex.hidden = !d.extra;
+  if (d.extra) {
+    $("extra-label").textContent = d.extra.label;
+    $("extra-text").textContent = "“" + d.extra.text + "”";
+  }
+  var n = $("note");
+  n.hidden = !d.note;
+  n.textContent = d.note || "";
+  document.documentElement.style.setProperty("--scale", scale);
+}
+
+function select(i, scrollTop) {
+  sel = i;
+  renderList();
+  renderAnswer();
+  if (scrollTop && window.matchMedia("(max-width: 820px)").matches) window.scrollTo({ top: 0 });
+}
+
+function step(dir) {
+  var idx = visible();
+  if (!idx.length) return;
+  var pos = idx.indexOf(sel);
+  pos = pos === -1 ? 0 : (pos + dir + idx.length) % idx.length;
+  select(idx[pos], true);
+}
+
+$("search").addEventListener("input", function (e) {
+  query = e.target.value;
+  var idx = visible();
+  if (idx.length && idx.indexOf(sel) === -1) sel = idx[0];
+  renderList();
+  renderAnswer();
 });
-document.addEventListener('input',e=>{if(e.target.matches('input[data-field]')){lead[e.target.dataset.field]=e.target.value}});
-document.addEventListener('toggle',e=>{
- if(e.target.tagName!=='DETAILS'||!e.target.open)return;
- document.querySelectorAll('details[open]').forEach(d=>{if(d!==e.target)d.open=false});
- e.target.scrollIntoView({block:'nearest',behavior:'smooth'});
-},true);
-let tx=0,ty=0;
-document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
-document.addEventListener('touchend',e=>{if(cur>=F)return;let dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>70&&Math.abs(dy)<40)go(cur+(dx<0?1:-1))},{passive:true});
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(cur>=F)return;if(e.key==='ArrowRight')go(Math.min(cur+1,F-1));if(e.key==='ArrowLeft')go(Math.max(0,cur-1))});
-render();
+$("prev").addEventListener("click", function () { step(-1); });
+$("next").addEventListener("click", function () { step(1); });
+$("bigger").addEventListener("click", function () { scale = Math.min(2, +(scale + 0.15).toFixed(2)); renderAnswer(); save(); });
+$("smaller").addEventListener("click", function () { scale = Math.max(0.7, +(scale - 0.15).toFixed(2)); renderAnswer(); save(); });
+document.addEventListener("keydown", function (e) {
+  var t = e.target && e.target.tagName;
+  if (t === "INPUT") return;
+  if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+
+
+var US_STATES = {AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming",DC:"District of Columbia"};
+$("state-code").addEventListener("input", function () {
+  var code = this.value.replace(/[^a-z]/gi, "").toUpperCase();
+  if (this.value !== code) this.value = code;
+  $("state-result").textContent = !code ? "Enter a 2-letter abbreviation" : (US_STATES[code] || (code.length < 2 ? "Keep typing…" : "Abbreviation not found"));
+});
+
+load();
+renderList();
+renderAnswer();
 </script>
-</body>
-</html>
+
+</body></html>
