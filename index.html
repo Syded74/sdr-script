@@ -137,11 +137,11 @@ const DNC=['Do not call','dnc',null,'bad'];
 const nodes={
 // ---------- Shared opening ----------
 opening:{step:1,title:'Opening · Outbound',say:LIVE_OUT,hint:'Go right into confirming their name.',
-  choices:[['Willing to continue','identity'],['Inbound call instead','openingIn'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Busy','rbBusy'],['Wrong person','rbWrongPerson'],DNC]},
+  choices:[['Willing to continue','identity'],['Inbound call instead','openingIn'],['Asks “what is this about?”','rbAbout'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Busy','rbBusy'],['Wrong person','rbWrongPerson'],DNC]},
 openingIn:{step:1,title:'Opening · Inbound',say:LIVE_IN,hint:'Customer called in.',
-  choices:[['Continue','identity'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],DNC]},
+  choices:[['Continue','identity'],['Asks “what is this about?”','rbAbout'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],DNC]},
 identity:{step:2,title:'Verify name',say:'And can you please verify your first and last name for me.',hint:'Update the name in ConvoSo and save.',
-  choices:[['Name verified','stateZip'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
+  choices:[['Name verified','stateZip'],['Asks “what is this about?”','rbAbout'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
 stateZip:{step:2,title:'State & ZIP code',say:'I see you’re currently residing in [State] with ZIP code [ZIP Code], is that correct?',hint:'Read the state and ZIP from ConvoSo. Type the state in the State box below so it fills in here. Update ConvoSo if anything is wrong.',
   choices:[['Correct','age',{location:'Confirmed'}],['Updated in ConvoSo','age',{location:'Updated'}],['Won’t confirm','rbLocation'],DNC]},
 age:{step:3,title:'Age',say:'Now, I know you sound young, but I do have to ask, are you under the age of 65?',hint:'',
@@ -208,6 +208,12 @@ agentLeave:{step:10,title:'Leave the line',banner:true,say:'[Customer Name], you
 transferUnavailable:{step:10,title:'Transfer unavailable',say:'I’m sorry, an agent isn’t available to join right now. What time would be more convenient for us to call you back?',hint:'',
   choices:[['End call','done']]},
 
+// ---------- "What is this about?" (returns to the step you came from) ----------
+rbAbout:{step:1,rb:true,title:'Customer asks · What is this about?',
+  say:'Great question! I’m with Health Advisors. It’s open enrollment for 2027, and we’re making sure you know about the new plan options and benefits you may qualify for in your area. I just need to verify a few quick things, and then a licensed insurance agent can go over everything with you.',
+  hint:'Keep it short and go straight back to the script. Never say you’re from Medicare or the government.',
+  choices:[['Back to script','BACK'],['Asks “what benefits?”','rbBenefits'],['Still declines','end'],DNC]},
+
 // ---------- Benefits question (returns to the step you came from) ----------
 rbBenefits:{step:2,rb:true,title:'Customer asks · What benefits?',
   say:a=>a.path==='ACA'
@@ -260,7 +266,8 @@ const objections=[
  {t:'Too many calls',s:'I understand — I get them too. Give me a moment to explain why I called, and you can decide whether it’s relevant.'},
  {t:'Already did this',s:'Perfect, [Customer Name] — then you already know how quick this is. I just want to make sure nothing available to you was missed. Let’s verify a couple things.'},
  {t:'Is this a scam?',s:'Fair question. Don’t provide anything you’re uncomfortable sharing. I’m calling to help review health coverage options you may qualify for.'},
- {t:'How did you get my number?',s:'That’s a fair question. I can explain the source of your contact information once I’ve verified it.',pivot:'Only mention a prior form or call if ConvoSo records confirm it. Then: '+PIVOT},
+ {t:'How did you get my number?',s:'That’s a great question! You would have filled out a form online, and we must have spoken to you in the past. I’m just following up to make sure you get your free review.'},
+ {t:'What is this about?',s:'Great question! I’m with Health Advisors. It’s open enrollment for 2027, and we’re making sure you know about the new plan options and benefits you may qualify for in your area. I just need to verify a few quick things, and then a licensed insurance agent can go over everything with you.'},
  {t:'Who are you?',s:'I’m [Agent Name] with Health Advisors. I’m calling to help review health coverage options you may qualify for.'},
  {t:'Where are you calling from?',s:'I’m calling from Las Vegas with Health Advisors. I’m reaching out regarding health coverage options.'},
  {t:'Wrong number',s:'That happens to me too! But since I have you on the line, let me quickly see what coverage options you might qualify for.'},
