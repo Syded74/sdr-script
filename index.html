@@ -149,11 +149,13 @@ medicareQ:{step:4,title:'Medicare Parts A & B',say:'Do you have Medicare Parts A
     ['Yes, A and B',a=>a.age==='Under 65'?'u65Dis':'card',{path:'Medicare',medicare:'Parts A and B'}],
     ['No Medicare',a=>a.age==='65 or older'?'dq':'medicaid',a=>a.age==='65 or older'?{medicare:'No',dq:'65+ with no Medicare A & B'}:{path:'ACA',medicare:'No'}],
     ['Only one part','dq',{medicare:'One part only',dq:'Does not have both Parts A and B'},'bad'],
-    ['Not sure','card',{path:'Medicare',medicare:'Unsure'}]]},
+    ['Not sure','rbUnsure',{path:'Medicare',medicare:'Unsure'}]]},
 
 // ---------- Medicare path ----------
-card:{step:5,title:'Medicare card',say:'Just to make sure you have the red, white, and blue Medicare card that says Hospital Part A and Medical Part B, right? It’s okay if you don’t have it on you right now. We just need to confirm you have it.',hint:'Say “Medicare card”, not “Medicaid card”. No card = not qualified.',
-  choices:[['Has the card',a=>a.age==='Under 65'?'u65Dis':'mName2',{card:'Yes'}],['No card','dq',{card:'No',dq:'No Medicare card'},'bad']]},
+card:{step:5,title:'Medicare card',say:'Just to make sure you have the red, white, and blue Medicare card that says Hospital Part A and Medical Part B, right? It’s okay if you don’t have it on you right now. We just need to confirm you have it.',hint:a=>(a.medicare==='Unsure'?'Customer wasn’t sure about Parts A & B. The card answers it: the red, white and blue card shows “Hospital (Part A)” and “Medical (Part B)”. If they have it nearby, ask them to read what it says. ':'')+'Say “Medicare card”, not “Medicaid card”. '+(a.medicare==='Unsure'&&a.age==='Under 65'?'No card + under 65 = no Medicare → ACA path.':'No card = not qualified.'),
+  choices:[['Has the card',a=>a.age==='Under 65'?'u65Dis':'mName2',a=>({card:'Yes',...(a.medicare==='Unsure'?{medicare:'Parts A and B (card confirmed)'}:{})})],
+    ['Card shows only Part A or only Part B','dq',{card:'One part only',dq:'Does not have both Parts A and B'},'bad'],
+    ['No card',a=>a.medicare==='Unsure'&&a.age==='Under 65'?'medicaid':'dq',a=>a.medicare==='Unsure'&&a.age==='Under 65'?{card:'No',medicare:'No',path:'ACA'}:{card:'No',dq:'No Medicare card'},'bad']]},
 u65Dis:{step:5,title:'Under 65 · Disability & Medicaid',say:'Are you also receiving disability benefits and Medicaid?',hint:'Under-65 Medicare needs YES to BOTH. Missing either = not qualified.',
   choices:[['Yes, both','mTransfer',{disabilityMedicaid:'Both'}],['Only one / neither','dq',{disabilityMedicaid:'Not both',dq:'Under 65: needs both disability benefits and Medicaid'},'bad']]},
 mName2:{step:6,title:'Confirm name',say:'Can you please confirm your first and last name?',hint:'Update ConvoSo if needed.',
@@ -242,6 +244,12 @@ dnc:{step:10,title:'Do not call',say:'Understood. I’ll follow the required do-
 done:{step:10,title:'Call finished',say:'Call complete.',hint:'',choices:[['Start a new call','RESET']]}
 };
 
+// Rebuttal for "not sure if I have A or B": reassure, then let the card decide (same buttons as the card step)
+nodes.rbUnsure={step:4,rb:true,title:'Rebuttal · Not sure about Parts A & B',
+  say:'No problem, a lot of people aren’t sure! Do you have the red, white, and blue Medicare card? It says Hospital Part A and Medical Part B right on the front. It’s okay if you don’t have it on you right now. We just need to confirm you have it.',
+  hint:a=>'If the card is nearby, ask them to read what it says. '+(a.age==='Under 65'?'No card + under 65 = no Medicare → ACA path.':'No card = not qualified.'),
+  choices:nodes.card.choices};
+
 const PIVOT='“So, could you confirm your first and last name for me?”';
 const objections=[
  {t:'Not interested',s:'I understand, [Customer Name]. Before you decide, let’s just make sure you’re not overlooking an option available to you. This is very helpful and won’t take long.'},
@@ -263,6 +271,7 @@ const objections=[
  {t:'Where do benefits come from?',s:'Great question. The benefits depend on the specific plan and programs you qualify for. The licensed agent can explain the exact benefits and provider.'},
  {t:'Why do you need my age?',s:'Good question. Medicare benefits mostly start at 65, and the plans you can qualify for depend on your age. I just need to confirm it so I’m checking the right things for you.'},
  {t:'What are Parts A & B?',s:'Parts A and B together are Original Medicare. Part A helps cover hospital stays. Part B helps cover doctor visits, outpatient care and preventive services.'},
+ {t:'Not sure if I have A or B',s:'No problem, a lot of people aren’t sure! Do you have the red, white, and blue Medicare card? It says Hospital Part A and Medical Part B right on the front. It’s okay if you don’t have it on you, we just need to confirm you have it.',pivot:'In the step card, tap “Not sure” at the Parts A & B question. It takes you to the card question.'},
  {t:'What’s a licensed agent?',s:'A licensed agent has passed state exams and is approved to explain and enroll people in plans. I verify a few details first, then connect you with one.'},
  {t:'Take me off your list',s:'Absolutely. I’ll follow the required do-not-call procedure. Thank you for your time.',dnc:true}
 ];
