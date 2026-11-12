@@ -141,7 +141,9 @@ opening:{step:1,title:'Opening · Outbound',say:LIVE_OUT,hint:'Go right into con
 openingIn:{step:1,title:'Opening · Inbound',say:LIVE_IN,hint:'Customer called in.',
   choices:[['Continue','identity'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],DNC]},
 identity:{step:2,title:'Verify name',say:'And can you please verify your first and last name for me.',hint:'Update the name in ConvoSo and save.',
-  choices:[['Name verified','age'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
+  choices:[['Name verified','stateZip'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
+stateZip:{step:2,title:'State & ZIP code',say:'I see you’re currently residing in [State] with ZIP code [ZIP Code], is that correct?',hint:'Read the state and ZIP from ConvoSo. Type the state in the State box below so it fills in here. Update ConvoSo if anything is wrong.',
+  choices:[['Correct','age',{location:'Confirmed'}],['Updated in ConvoSo','age',{location:'Updated'}],['Won’t confirm','rbLocation'],DNC]},
 age:{step:3,title:'Age',say:'Now, I know you sound young, but I do have to ask, are you under the age of 65?',hint:'',
   choices:[['Under 65','medicareQ',{age:'Under 65'}],['65 or older','medicareQ',{age:'65 or older'}],['Won’t say','clarifyAge']]},
 medicareQ:{step:4,title:'Medicare Parts A & B',say:'Do you have Medicare Parts A & B?',hint:'Yes → Medicare path. No + under 65 → ACA path. No + 65 or older → not qualified.',
@@ -173,11 +175,7 @@ mTransfer:{step:9,title:'Medicare · Transfer permission',banner:true,say:'Okay,
 medicaid:{step:5,title:'Medicaid',say:'And you are not currently on Medicaid, right?',hint:'On Medicaid = not qualified.',
   choices:[['Correct, not on Medicaid','aOther',{medicaid:'No'}],['On Medicaid','dq',{medicaid:'Yes',dq:'On Medicaid'},'bad']]},
 aOther:{step:6,title:'Other insurance',say:'Do you have insurance coverage through an employer, union, VA, or TRICARE?',hint:'Yes = not qualified.',
-  choices:[['No','aState',{other:'No'}],['Yes','dq',{other:'Yes',dq:'Employer, union, VA or TRICARE coverage'},'bad']]},
-aState:{step:7,title:'State',say:'You’re still living in [State], correct?',hint:'Type the state in the box below. Wait for their answer before asking ZIP.',
-  choices:[['Yes','aZip',{state:'Confirmed'}],['Moved — updated in ConvoSo','aZip',{state:'Updated'}],['Won’t confirm','rbLocation']]},
-aZip:{step:8,title:'ZIP code',say:'Okay, great, and is your ZIP code still [ZIP Code]?',hint:'Read the ZIP from ConvoSo. Update it if incorrect.',
-  choices:[['Yes','aTransfer',{zip:'Confirmed'}],['Updated in ConvoSo','aTransfer',{zip:'Updated'}],['Won’t confirm','rbLocation']]},
+  choices:[['No','aTransfer',{other:'No'}],['Yes','dq',{other:'Yes',dq:'Employer, union, VA or TRICARE coverage'},'bad']]},
 aTransfer:{step:9,title:'ACA · Transfer permission',banner:true,say:'Okay, great! It looks like you may qualify for multiple ACA plans based on your ZIP code. I would like to transfer you to a licensed insurance agent who can review your plan options with you. Do I have your permission to transfer you now?',hint:'Say “A-C-A” clearly, all three letters. Wait for a clear yes.',
   choices:[['Yes — transfer','transition',{consent:'Yes'}],['No','rbTransfer'],['Asks “what benefits?”','rbBenefits']]},
 
@@ -192,6 +190,7 @@ handoff:{step:10,title:'Agent joined · Say to the agent',banner:true,say:'Hi, I
 agentInfo:{step:10,title:'Agent asks · Lead details',banner:true,say:a=>{
     const p=[];
     p.push('[Customer Name]'+(stateFull()?' from '+stateFull():''));
+    if(a.location)p.push('State & ZIP: '+a.location);
     if(a.age)p.push(a.age);
     if(a.medicare)p.push('Medicare: '+a.medicare);
     if(a.card)p.push('Medicare card: '+a.card);
@@ -219,19 +218,19 @@ rbBenefits:{step:2,rb:true,title:'Customer asks · What benefits?',
 
 // ---------- Decline rebuttals (one try, then close) ----------
 notInterested:{step:2,rb:true,title:'Rebuttal · Not interested',say:'I understand, [Customer Name]. Before you decide, let’s just make sure you’re not overlooking an option available to you. This is very helpful and won’t take long.',hint:'If still not interested, close politely.',
-  choices:[['Agrees to continue',()=>history.some(h=>h.current==='identity')?'age':'identity'],['Still declines','end'],DNC]},
+  choices:[['Agrees to continue',()=>history.some(h=>h.current==='identity')?'stateZip':'identity'],['Still declines','end'],DNC]},
 rbInsured:{step:2,rb:true,title:'Rebuttal · Already has insurance',say:'Perfect! Most people we speak with do. We’re simply checking whether there are other options or benefits you may qualify for.',hint:'',
-  choices:[['Continue','age'],['Still declines','end'],DNC]},
+  choices:[['Continue','stateZip'],['Still declines','end'],DNC]},
 rbBusy:{step:1,rb:true,title:'Rebuttal · Busy',say:'Absolutely — I’ll keep it quick. Let’s just check the basics and see whether it’s worth continuing.',hint:'If still busy, offer a callback time.',
   choices:[['Agrees','identity'],['Call back later','callback'],['Still declines','end'],DNC]},
 rbWrongPerson:{step:1,rb:true,title:'Rebuttal · Wrong person',say:'That happens to me too! But since I have you on the line, let me quickly see what coverage options you might qualify for.',hint:'',
   choices:[['Agrees','identity'],['Still declines','end'],DNC]},
 rbIdentity:{step:2,rb:true,title:'Rebuttal · Won’t give name',say:'I completely understand, and you don’t have to share anything you’re not comfortable with. I just need to make sure I’m speaking with the right person before we go over anything. Could you confirm your first and last name for me?',hint:'If still declines, close politely.',
-  choices:[['Name verified',a=>a.card?'mEmployer':'age'],['Still declines','end'],DNC]},
+  choices:[['Name verified',a=>a.card?'mEmployer':'stateZip'],['Still declines','end'],DNC]},
 clarifyAge:{step:3,rb:true,title:'Rebuttal · Won’t give age',say:'Good question. Medicare benefits mostly start at 65, and the plans you can qualify for depend on your age. I just need to confirm it so I’m checking the right things for you. Are you under or over 65?',hint:'',
   choices:[['Under 65','medicareQ',{age:'Under 65'}],['65 or older','medicareQ',{age:'65 or older'}],['Still declines','end']]},
-rbLocation:{step:7,rb:true,title:'Rebuttal · Won’t confirm location',say:'I understand. Plans and benefits are different in every state and ZIP code, so I just need to confirm yours to make sure I’m checking the right ones for you. What state and ZIP code are you in?',hint:'',
-  choices:[['Confirmed','aTransfer',{location:'Confirmed'}],['Still declines','end'],DNC]},
+rbLocation:{step:2,rb:true,title:'Rebuttal · Won’t confirm location',say:'I understand. Plans and benefits are different in every state and ZIP code, so I just need to confirm yours to make sure I’m checking the right ones for you. What state and ZIP code are you in?',hint:'Update ConvoSo and the State box with what they tell you.',
+  choices:[['Confirmed','age',{location:'Confirmed'}],['Still declines','end'],DNC]},
 rbTransfer:{step:10,rb:true,title:'Rebuttal · Won’t transfer',say:'I understand. The licensed agent just walks you through what’s available — there’s no obligation, and you don’t have to change anything. It only takes a few minutes, and you decide what makes sense. Is it okay if I bring them on the line?',hint:'Only transfer on a clear yes.',
   choices:[['Yes — transfer','transition',{consent:'Yes'}],['Still declines','end',{consent:'No'}],DNC]},
 
