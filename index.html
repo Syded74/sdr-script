@@ -79,7 +79,7 @@ h1{font-size:22px;line-height:1.25;margin:0 0 10px}
   <header class="top">
     <div class="brand">🎧 SDR <span>Call Assistant</span></div>
     <div class="top-right">
-      <div class="keys"><kbd>1</kbd>–<kbd>6</kbd> answer · <kbd>Backspace</kbd> back · <kbd>/</kbd> objections · <kbd>Esc</kbd> close</div>
+      <div class="keys"><kbd>1</kbd>–<kbd>9</kbd> answer · <kbd>Backspace</kbd> back · <kbd>/</kbd> objections · <kbd>Esc</kbd> close</div>
     </div>
   </header>
 
@@ -137,11 +137,11 @@ const DNC=['Do not call','dnc',null,'bad'];
 const nodes={
 // ---------- Shared opening ----------
 opening:{step:1,title:'Opening · Outbound',say:LIVE_OUT,hint:'Go right into confirming their name.',
-  choices:[['Willing to continue','identity'],['Inbound call instead','openingIn'],['Not interested','notInterested'],['Busy','rbBusy'],['Wrong person','rbWrongPerson'],DNC]},
+  choices:[['Willing to continue','identity'],['Inbound call instead','openingIn'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Busy','rbBusy'],['Wrong person','rbWrongPerson'],DNC]},
 openingIn:{step:1,title:'Opening · Inbound',say:LIVE_IN,hint:'Customer called in.',
-  choices:[['Continue','identity'],['Not interested','notInterested'],DNC]},
+  choices:[['Continue','identity'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],DNC]},
 identity:{step:2,title:'Verify name',say:'And can you please verify your first and last name for me.',hint:'Update the name in ConvoSo and save.',
-  choices:[['Name verified','age'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
+  choices:[['Name verified','age'],['Asks “what benefits?”','rbBenefits'],['Not interested','notInterested'],['Already has insurance','rbInsured'],['Won’t give name','rbIdentity'],DNC]},
 age:{step:3,title:'Age',say:'Now, I know you sound young, but I do have to ask, are you under the age of 65?',hint:'',
   choices:[['Under 65','medicareQ',{age:'Under 65'}],['65 or older','medicareQ',{age:'65 or older'}],['Won’t say','clarifyAge']]},
 medicareQ:{step:4,title:'Medicare Parts A & B',say:'Do you have Medicare Parts A & B?',hint:'Yes → Medicare path. No + under 65 → ACA path. No + 65 or older → not qualified.',
@@ -165,7 +165,7 @@ mVA:{step:7,title:'VA or TRICARE',say:'Okay, and how about coverage through the 
 mMeds:{step:8,title:'Medications',say:'Yes or no is fine for this question. Do you currently take eight or more medications, including over the counter?',hint:'Enter YES or NO in ConvoSo. The answer does not affect qualification.',
   choices:[['Yes','mTransfer',{meds:'Yes'}],['No','mTransfer',{meds:'No'}]]},
 mTransfer:{step:9,title:'Medicare · Transfer permission',banner:true,say:'Okay, great! It looks like you may qualify for multiple Medicare plans based on your ZIP code. I would like to transfer you to a licensed insurance agent who can review your plan options. Do I have your permission to transfer you now to a licensed insurance agent?',hint:'Say “Medicare plans”, not “medical plans”. Wait for a clear yes.',
-  choices:[['Yes — transfer','transition',{consent:'Yes'}],['No','rbTransfer']]},
+  choices:[['Yes — transfer','transition',{consent:'Yes'}],['No','rbTransfer'],['Asks “what benefits?”','rbBenefits']]},
 
 // ---------- ACA path ----------
 medicaid:{step:5,title:'Medicaid',say:'And you are not currently on Medicaid, right?',hint:'On Medicaid = not qualified.',
@@ -177,16 +177,43 @@ aState:{step:7,title:'State',say:'You’re still living in [State], correct?',hi
 aZip:{step:8,title:'ZIP code',say:'Okay, great, and is your ZIP code still [ZIP Code]?',hint:'Read the ZIP from ConvoSo. Update it if incorrect.',
   choices:[['Yes','aTransfer',{zip:'Confirmed'}],['Updated in ConvoSo','aTransfer',{zip:'Updated'}],['Won’t confirm','rbLocation']]},
 aTransfer:{step:9,title:'ACA · Transfer permission',banner:true,say:'Okay, great! It looks like you may qualify for multiple ACA plans based on your ZIP code. I would like to transfer you to a licensed insurance agent who can review your plan options with you. Do I have your permission to transfer you now?',hint:'Say “A-C-A” clearly, all three letters. Wait for a clear yes.',
-  choices:[['Yes — transfer','transition',{consent:'Yes'}],['No','rbTransfer']]},
+  choices:[['Yes — transfer','transition',{consent:'Yes'}],['No','rbTransfer'],['Asks “what benefits?”','rbBenefits']]},
 
 // ---------- Transfer ----------
 transition:{step:10,title:'Bring the agent on',banner:true,say:'Alright, I’m bringing them on the line now. They’ll be a big help and let you know what you may qualify for. Please stay on the line with me.',
   hint:a=>'HOLD: stay on hold until the licensed agent answers. Transfer button: '+(a.campaign?'the VA/TRICARE accepted campaign':'Medicare DS 1 - PDM Inhouse ACA Medicare DS 1')+'. Small talk while waiting: “How is your day going so far?” · “Any plans for the upcoming weekend?” · “How is the weather where you are?”',
-  choices:[['Agent joined','handoff'],['No agent available','transferUnavailable']]},
-handoff:{step:10,title:'Warm transfer',banner:true,say:'Hi, I have [Customer Name] on the line with me from the state of [State]. Can you please help them from here?',hint:'Stick to the scripted handoff only. Once the agent and lead are speaking, leave the transfer line.',
+  choices:[['Agent joined','handoff'],['Customer asks how long','rbHold'],['No agent available','transferUnavailable']]},
+rbHold:{step:10,rb:true,title:'On hold · Customer getting impatient',say:'Thank you so much for your patience, [Customer Name]. They’ll be with us any second now. Please stay on the line with me.',hint:'Keep the small talk going. Never hang up on the customer while on hold.',
+  choices:[['Agent joined','handoff'],['Customer hangs up / declines','end'],['No agent available','transferUnavailable']]},
+handoff:{step:10,title:'Agent joined · Say to the agent',banner:true,say:'Hi, I have [Customer Name] on the line with me from the state of [State]. Can you please help them from here?',hint:'Say this to the AGENT. Stick to the scripted handoff only. Don’t add benefits, prices or promises.',
+  choices:[['Agent takes over','agentLeave'],['Agent asks for lead details','agentInfo']]},
+agentInfo:{step:10,title:'Agent asks · Lead details',banner:true,say:a=>{
+    const p=[];
+    p.push('[Customer Name]'+(stateFull()?' from '+stateFull():''));
+    if(a.age)p.push(a.age);
+    if(a.medicare)p.push('Medicare: '+a.medicare);
+    if(a.card)p.push('Medicare card: '+a.card);
+    if(a.disabilityMedicaid)p.push('Disability + Medicaid: '+a.disabilityMedicaid);
+    if(a.employer)p.push('Employer/union: '+a.employer);
+    if(a.va)p.push('VA/TRICARE: '+a.va);
+    if(a.meds)p.push('8+ medications: '+a.meds);
+    if(a.medicaid)p.push('Medicaid: '+a.medicaid);
+    if(a.other)p.push('Employer/union/VA/TRICARE: '+a.other);
+    return p.join(' · ')+'.';
+  },hint:'Read ONLY what the agent asks for. This is what the customer told you on this call.',
+  choices:[['Agent takes over','agentLeave']]},
+agentLeave:{step:10,title:'Leave the line',banner:true,say:'[Customer Name], you’re in great hands. I’ll let them take it from here. Have a great day!',hint:'Say this only if the agent pauses for you. Once the agent and customer are talking, LEAVE THE LINE right away. Disposition as transferred in ConvoSo.',
   choices:[['Call completed','done']]},
 transferUnavailable:{step:10,title:'Transfer unavailable',say:'I’m sorry, an agent isn’t available to join right now. What time would be more convenient for us to call you back?',hint:'',
   choices:[['End call','done']]},
+
+// ---------- Benefits question (returns to the step you came from) ----------
+rbBenefits:{step:2,rb:true,title:'Customer asks · What benefits?',
+  say:a=>a.path==='ACA'
+    ?'Great question! Depending on your income and ZIP code, you may qualify for lower monthly costs. Every area is different, so a licensed agent can go over exactly what’s available to you.'
+    :'Great question! Depending on your ZIP code, some of the new plans may include extra benefits, like dental, vision, or hearing coverage, or help with everyday health items. Every area is different, so I just need to verify a few things, and then a licensed agent can tell you exactly which ones you qualify for.',
+  hint:'Always say “may”. No dollar amounts, no “$0”, no “free”, no specific cards or allowances.',
+  choices:[['Back to script','BACK'],['Still declines','end'],DNC]},
 
 // ---------- Decline rebuttals (one try, then close) ----------
 notInterested:{step:2,rb:true,title:'Rebuttal · Not interested',say:'I understand, [Customer Name]. Before you decide, let’s just make sure you’re not overlooking an option available to you. This is very helpful and won’t take long.',hint:'If still not interested, close politely.',
@@ -231,6 +258,7 @@ const objections=[
  {t:'Where are you calling from?',s:'I’m calling from Las Vegas with Health Advisors. I’m reaching out regarding health coverage options.'},
  {t:'Wrong number',s:'That happens to me too! But since I have you on the line, let me quickly see what coverage options you might qualify for.'},
  {t:'Is it free?',s:'The licensed agent can explain the available plans, their premiums, and any costs based on your eligibility, location, and income.'},
+ {t:'What benefits?',s:'Great question! Depending on your ZIP code, some of the new plans may include extra benefits, like dental, vision, or hearing coverage, or help with everyday health items. Every area is different, so I just need to verify a few things, and then a licensed agent can tell you exactly which ones you qualify for.',pivot:'ACA lead? Say instead: “Depending on your income and ZIP code, you may qualify for lower monthly costs. The licensed agent can go over exactly what’s available.” Then: '+PIVOT},
  {t:'Question about benefits',s:'Great question. The licensed agent can explain that in detail.'},
  {t:'Where do benefits come from?',s:'Great question. The benefits depend on the specific plan and programs you qualify for. The licensed agent can explain the exact benefits and provider.'},
  {t:'Why do you need my age?',s:'Good question. Medicare benefits mostly start at 65, and the plans you can qualify for depend on your age. I just need to confirm it so I’m checking the right things for you.'},
@@ -295,6 +323,7 @@ function render(){
 
 function choose(next,set){
   if(next==='RESET'){reset();return}
+  if(next==='BACK'){back();return}
   const target=typeof next==='function'?next(answers):next;
   const add=typeof set==='function'?set(answers):set;
   history.push({current,answers:{...answers}});
